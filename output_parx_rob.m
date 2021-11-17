@@ -1,4 +1,4 @@
-function[OUT,pearson_residuals,pred,probability,meany,rpit,confidence_interval]=output_parx_rob(y,X,theta0,p,q,s,filename)
+function[OUT,pearson_residuals,pred,probability,meany,rpit,confidence_interval,theta]=output_parx_rob(y,X,theta0,p,q,s,filename)
 
 %Numerical approximatation of maximum likelihood and restriction of outcome
 %been none-negative

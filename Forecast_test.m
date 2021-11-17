@@ -14,15 +14,15 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 
 %% Select data for model
 Y=hosp'; % Transpose to fit into out
-X=[]; % Defined as empty matrix to run a PAR frame work
+%X=[]; % Defined as empty matrix to run a PAR frame work
 
 T0 = 464;
 Y = Y(:,1:T0); % y is shortend in order to allow us to run the model. 
 
-% X(1,:)=max(0,diff(tested));
+X(1,:)=max(0,diff(tested));
 
 % To include exogenous variables into model X needs to be changed to
-% X(:,1:t) in loop for estimations
+%X(:,1:t) in loop for estimations
 
 % Determine length of data (number of days)
 T = length(Y);
@@ -30,7 +30,8 @@ T = length(Y);
 %% Initial values of theta used in numerical optimization computed
 
 % Set Theta_init
-theta_init = [0.2284;  0.1842; 0.1990; 0.1579];
+theta_init = [0.02284;  0.01842; 0.01990; 0.01579];
+%theta_init = [0.2284;  0.1842; 0.1990; 0.1579];
 %theta_init = [0.2284;  0.1842; 0.1990];
 
 % Determine size of theta_init
@@ -45,7 +46,8 @@ theta_est = zeros(parameters,T);
 %% Initialization of algorithm - OBS
 %TOLERANCE ER MEGET LAV FOR AT TESTE AT KODEN KØRER. TolFun samt TolX skal
 %sættes op inden koden køres 'rigtigt'. Default værdien er 1e-4. 
-options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',1e-1,'TolX', 1e-1, 'Display', 'iter','PlotFcns',@optimplotfval);
+tolerance = 1e-8;
+options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance); %'Display', 'iter','PlotFcns',@optimplotfval
 T0 = 365; % Set number of days to include
 
 % Search for minimum values of theta 
@@ -70,8 +72,7 @@ T0 = 120; % Set start observation for forecast
 
 % Set options for the fminsearch function
 tolerance = 1e-8;
-options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance, 'Display', 'iter','PlotFcns',@optimplotfval);
-
+options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance); % 'Display', 'iter','PlotFcns',@optimplotfval
 % Create empty matrices to fill data into
 logL_tmp_T = zeros(1, T-T0);
 theta_est_T = zeros(parameters, T-T0);
@@ -88,7 +89,7 @@ for t = T0+1:T
 
     % Search for values of theta. Save value for each iteration
     % The index of x X(1:t) is inserted when exogenous variables are considered and removed when only a PAR model is forecasted
-    [theta_sqr_est_T(:,t-T0),logL_tmp_T(t-T0)] = fminsearch('logL_PARX',sqrt(theta_init),options,Y(1:t),X,p,1);
+    [theta_sqr_est_T(:,t-T0),logL_tmp_T(t-T0)] = fminsearch('logL_PARX',sqrt(theta_init),options,Y(1:t),X(:,1:t),p,1);
 
     % Imposing numerical restrictions
     theta_est_T(:,t-T0) = theta_sqr_est_T(:,t-T0).^2;
@@ -96,13 +97,13 @@ for t = T0+1:T
     theta_init = theta_est_T(:,t-T0);
 
     % Forecast lambda value for next day
-    lambda_f(t+1) = PARX_forecast(theta_est_T(:,t-T0),Y(1:t),X,1,1);
+    lambda_f(t+1) = PARX_forecast(theta_est_T(:,t-T0),Y(1:t),X(:,1:t),1,1);
 
 end 
- 
+
 %% Save Matrices
 
-writematrix(lambda_f', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/lambda_f_2para_PAR.xlsx')
+writematrix(lambda_f', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/lambda_f_2para_PARX_2.xlsx')
 writematrix(logL_tmp_T, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/logL_tmp_T_PAR.xlsx')
 writematrix(Y', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/Y_PAR.xlsx')
 writematrix(theta_est_T', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/theta_est_T_PAR.xlsx')
