@@ -82,7 +82,7 @@ theta_sqr_est_T = zeros(parameters, T-T0);
 % T=T0+10;
 
 %Specify laglength
-p=1;
+p = 1;
 
 % Loop over model estimations day by day, from T0 to end
 for t = T0+1:T
@@ -123,6 +123,7 @@ for t = T0+1:T
 %   it is not in the original equation
 end
 
+% Here the specific measure of the model in question is saved to provide data for comparringson plot further down 
 writematrix(MSFE', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/MSFE_PAR.xlsx')
 writematrix(KLIC', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/KLIC_PAR.xlsx')
 %% Plot stability of parameters and forecast error

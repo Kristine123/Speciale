@@ -3,14 +3,14 @@ clear all
 close all
 clc
 %% Import data
-hosp = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/hosp_16.txt');     
-temp = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/temp_18.txt'); 
-contact=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/contact_16.txt');
-tested=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/Tested_pcroganti_18.txt');
-vacc=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/vacc_not_18.txt');
-strin=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/stringency_16.txt');
-varbrit=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/BritiskVariant.txt');
-vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/DeltaVariant.txt');
+hosp     = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/hosp_16.txt');     
+temp     = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/temp_18.txt'); 
+contact  = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/contact_16.txt');
+tested   = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/Tested_pcroganti_18.txt');
+vacc     = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/vacc_not_18.txt');
+strin    = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/stringency_16.txt');
+varbrit  = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/BritiskVariant.txt');
+vardelta = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/DeltaVariant.txt');
 
 %% Select data for model
 Y=hosp'; % Transpose to fit into out
@@ -138,6 +138,21 @@ figure;
     
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PARX MODEL
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear all
+close all
+clc
+
+% Import data
+hosp     = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/hosp_16.txt');     
+temp     = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/temp_18.txt'); 
+contact  = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/contact_16.txt');
+tested   = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/Tested_pcroganti_18.txt');
+vacc     = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/vacc_not_18.txt');
+strin    = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/stringency_16.txt');
+varbrit  = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/BritiskVariant.txt');
+vardelta = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/DeltaVariant.txt');
+
 %% Select data for model
 Y = hosp'; % Transpose to fit into out
 X = max(0,diff(tested))';  % positive change in tested procentage
@@ -148,7 +163,7 @@ Y  = Y(:,1:T0); % y is shortend in order to allow us to run the model.
 % Determine length of data (number of days)
 T = length(Y);
 
-%% Initial values of theta used in numerical optimization computed
+% Initial values of theta used in numerical optimization computed
 
 % Set Theta_init
 theta_init = [0.0645;  0.415; 0.577;  0.0025];
@@ -171,7 +186,7 @@ theta_est = zeros(parameters,T);
 % Get rolling time window of 100 days
 x  = 1:T; % Length of dataset (464 data points)
 w  = 30; % rolling window size of 30 days (month)
-T0 = 10; % days prior to evaluation of first estimation (e.g. start model at day 101)
+T0 = 0; % days prior to evaluation of first estimation (e.g. start model at day 101)
 
 series = zeros(floor((length(x-T0)-w)/w)*w,w); % Preallocation of series (100 days wide and rows that are multiple of 30 days window => length of 420)
 for i  = 1:length(series)
@@ -222,7 +237,9 @@ end
 %% Determine forecast error KLIC and MSFE
 ForecastError_PARX = Y(w+1:length(lambda_f_PARX)+w)-lambda_f_PARX;  % starts compairing at day 31 in data Y with first lambda forecast 
 logf_PARX = Y(1:t+1).*log(lambda_f_PARX(1:t+1)) - lambda_f_PARX(1:t+1);
- 
+
+writematrix(ForecastError_PARX', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/forecasterror2.xlsx')
+
 KLIC_PARX = zeros(1,t+1);
 MSFE_PARX = zeros(1,t+1);
 
@@ -234,7 +251,7 @@ for i = 1:t+1
 %   it is not in the original equation
 end
 
-%% Plot stability of parameters and forecast error
+% Plot stability of parameters and forecast error
 
 
 % Set dates for plotting interval

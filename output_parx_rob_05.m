@@ -16,11 +16,10 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 %% ikketransformerettest
 testednonnegative=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/Tested_pcroganti_18.txt');
 %% Length of time series
-T0 = 204;
-%T0 = 236;
-y=hosp';
-y = y(:,62:T0); % y is shortend in order to allow us to run the model. 
-%X = X(:,1:T0);
+T0 = 0;
+% T0 = 236;
+y = hosp';
+% y = y(:,62:T0); % y is shortend in order to allow us to run the model. 
 %%
 dummy = zeros(T0,1);
 for i = 1:T0
@@ -29,7 +28,7 @@ for i = 1:T0
     end
 end
 %% Select data to use
-% X=[];
+X=[];
 % X(1,:)=temp;
 % X(2,:)=contact;
 % X(3,:)=tested;
@@ -38,24 +37,24 @@ end
 % X(6,:)=vardelta;
 % 
 %New transformed variables
-% 
+
 % X(1,:)=abs(min(0,diff(temp)));
-% X(1,:)=max(0,diff(temp));
+% X(2,:)=max(0,diff(temp));
 % 
 % X(3,:)=abs(min(0,diff(contact)));
 % X(4,:)=max(0,diff(contact));
 % 
 % X(5,:)=abs(min(0,diff(tested))); 
-X(1,:)=max(0,diff(tested));%Bliver signifikant
-X = X(:,62:T0);
-
-% X(1,:)=abs(diff(vacc)); 
-
-% X(1,:)=abs(min(0,diff(varbrit)));
-%  X(2,:)=max(0,diff(varbrit));
-
-% X(1,:)=abs(min(0,diff(vardelta)));
-% X(2,:)=max(0,diff(vardelta));
+% X(6,:)=max(0,diff(tested));%Bliver signifikant
+% % X = X(:,62:T0);
+% 
+% X(7,:)=abs(diff(vacc)); 
+% 
+% X(8,:)=abs(min(0,diff(varbrit)));
+% X(9,:)=max(0,diff(varbrit));
+% 
+% X(10,:)=abs(min(0,diff(vardelta)));
+% X(11,:)=max(0,diff(vardelta));
 
 % X(1,:)=dummy;
 %% PARX(1,1)
@@ -64,24 +63,28 @@ X = X(:,62:T0);
 p = 1; % autoreg led
 q = 1; % intensity lagged
 s = 1; % Excel sheet 
-[r,T] = size(X);
+% Nedestående er ændret fra size(x) til size(y) d. 16/1/2022, for at køre
+% den som en PAR model i stedet for PARX.
+[r,T] = size(y);
 g = p+q+r+1; % determine number of start values used
 
 % Set initial values
-%theta0 = [0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.81;0.81];
+% theta0 = [0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.81;0.81];
 theta0 = [0.5;0.3;0.1;0.26;0.64;0.05;0.71;0.81;0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.2;0.1;0.2;0.2;0.54;0.01;0.81;0.81;0.81;0.81];
 theta0 = theta0(1:g);
 
 % Set output save location
-filename = 'Outputs/PARX_22/2709_lockdown_62_204_short.xlsx';
+filename = 'Outputs/PARX_22/0112_rerun_the_results.xlsx';
 
 % Use parx_rob function to get outputs
-[OUT, pearson_residuals, pred, probability, meany, rpit,confidence_interval] = output_parx_rob(y,X,theta0,p,q,s,filename); 
 
-%Y(1:T0),X(:,1:T0)
+[OUT, pearson_residuals, pred, probability, meany, rpit,confidence_interval] = output_parx_rob(y(1:T),X,theta0,p,q,s,filename); 
+
+% X = X(:,1:T0);
+% If a PARX is estimated y needs to be shortend to y(1:T)
 %%
 writematrix(pred, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/pred.xlsx')
-%writematrix(, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/lambda_f_2para.xlsx')
+% writematrix(, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/lambda_f_2para.xlsx')
 %% Settings dates for misspecification tests
 
 % Set dates for plotting
