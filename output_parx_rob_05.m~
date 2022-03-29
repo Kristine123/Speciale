@@ -15,14 +15,14 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 
 %% Select data to use
 
- X=[]; %to run a PAR model activate this line
+% X=[]; %to run a PAR model activate this line
 
 % Transformed variables for PARX model
 
 % X(1,:)=abs(min(0,diff(temp)));
 % X(2,:)=max(0,diff(temp));
 % 
-% X(1,:)=abs(min(0,diff(contact)));
+ X(1,:)=abs(min(0,diff(contact)));
 % X(4,:)=max(0,diff(contact));
 % 
 % X(5,:)=abs(min(0,diff(tested))); 

@@ -184,7 +184,9 @@ legend('Hospitalizations','British - B.1.1.7 (rhs)','Delta - B.1.617.2 (rhs)','L
 saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Figurer_2408/Variations.jpg')
 %% For the descriptive statistics ACF
 
-figure; autocorr(hosp, 'NumLags', 60)
+figure;
+
+autocorr(hosp, 'NumLags', 60)
 
 %% For the descriptive Statistics PACF
 

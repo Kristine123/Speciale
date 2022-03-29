@@ -3,8 +3,8 @@ function[OUT,pearson_residuals,pred,probability,meany,rpit,confidence_interval,t
 %Numerical approximatation of maximum likelihood and restriction of outcome
 %been none-negative
 
-theta_sqr0 = sqrt(theta0);
-%theta_sqr0 = theta0;   %to remove none negative restriction activate this line
+ theta_sqr0 = sqrt(theta0);
+ %theta_sqr0 = theta0;   %to remove none negative restriction activate this line
 
 options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun', 1e-8, 'TolX', 1e-8,'Display', 'iter','PlotFcns',@optimplotfval)
 [theta_sqr,logLmin] = fminsearch('logL_PARX',theta_sqr0,options,y,X,p,q);

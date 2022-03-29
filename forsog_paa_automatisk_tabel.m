@@ -12,61 +12,57 @@ vacc=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/vacc_
 strin=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/stringency_16.txt');
 varbrit=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/BritiskVariant.txt');
 vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/DeltaVariant.txt');
-
+%% Length of time series
+T0 = 0;
+% T0 = 236;
+y = hosp';
+% y = y(:,62:T0); % y is shortend in order to allow us to run the model. 
+%%
+dummy = zeros(T0,1);
+for i = 1:T0
+    if(i >= 236)
+        dummy(i) = 1;
+    end
+end
 %% Select data to use
-
- X=[]; %to run a PAR model activate this line
-
-% Transformed variables for PARX model
+X=[];
+% X(1,:)=temp;
+% X(2,:)=contact;
+% X(3,:)=tested;
+% X(4,:)=vacc;
+% X(5,:)=varbrit;
+% X(6,:)=vardelta;
+% 
+%New transformed variables
 
 % X(1,:)=abs(min(0,diff(temp)));
 % X(2,:)=max(0,diff(temp));
 % 
-% X(1,:)=abs(min(0,diff(contact)));
+% X(3,:)=abs(min(0,diff(contact)));
 % X(4,:)=max(0,diff(contact));
 % 
 % X(5,:)=abs(min(0,diff(tested))); 
-% X(1,:)=max(0,diff(tested));%Only significant variable in empirical analysis
+% X(6,:)=max(0,diff(tested));%Bliver signifikant
+% % X = X(:,62:T0);
 % 
 % X(7,:)=abs(diff(vacc)); 
 % 
 % X(8,:)=abs(min(0,diff(varbrit)));
-% X(1,:)=max(0,diff(varbrit));
+% X(9,:)=max(0,diff(varbrit));
 % 
 % X(10,:)=abs(min(0,diff(vardelta)));
 % X(11,:)=max(0,diff(vardelta));
 
-%X(1,:)=dummy; % To include dummy activate this line
- 
- %% Length of time series
- 
-T0 = 464;
-% T0 is set to lenght of time series -1 when including the exogenes variables. This is necessary as taking first difference of exogenes variables results
-% in a shorter time series
-
-y = hosp';
-y = y(:,1:T0); 
-
- % y = y(:,62:T0); %To shorten time series further use this format 
- % X = X(:,62:T0); 
- 
-%% Dummy
-% Creates dummy for robustness analysis
-% dummy = zeros(T0,1);
-% for i = 1:T0
-%     if(i >= 284)
-%         dummy(i) = 1;
-%     end
-% end
-
+% X(1,:)=dummy;
 %% PARX(1,1)
-
 %Benchmark model
 
-p = 1; % autoreg lags
+p = 1; % autoreg led
 q = 1; % intensity lagged
 s = 1; % Excel sheet 
-[r,T] = size(X);
+% Nedestående er ændret fra size(x) til size(y) d. 16/1/2022, for at køre
+% den som en PAR model i stedet for PARX.
+[r,T] = size(y);
 g = p+q+r+1; % determine number of start values used
 
 % Set initial values
@@ -79,11 +75,10 @@ filename = 'Outputs/PARX_22/0112_rerun_the_results.xlsx';
 
 % Use parx_rob function to get outputs
 
-[OUT, pearson_residuals, pred, probability, meany, rpit,confidence_interval] = output_parx_rob(y(:,1:T0),X,theta0,p,q,s,filename); 
+[OUT, pearson_residuals, pred, probability, meany, rpit,confidence_interval] = output_parx_rob(y(1:T),X,theta0,p,q,s,filename); 
 
-% If a PAR is estimated: output_parx_rob(y(:,1:T0),X,theta0,p,q,s,filename);
-% If a PARX is estimated: output_parx_rob(y(:,1:T0),X(:,1:T0),theta0,p,q,s,filename);
-
+% X = X(:,1:T0);
+% If a PARX is estimated y needs to be shortend to y(1:T)
 %%
 writematrix(pred, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/pred.xlsx')
 % writematrix(, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/lambda_f_2para.xlsx')
@@ -267,3 +262,21 @@ figure;
 
 saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Figurer_2408/2508_endelige_misspecifikation/screwnessHistogram.jpg')
 
+%% Herfra er der lavet forsøg med en automatisk tabel efter en guide - se logbog
+TC = [-273.15 -40 0 100]';
+TK = TC + 273.15;
+TF = (TC+40)*9/5-40;
+TR = TF + 459.67;
+
+%%
+for k=1:length(TC)
+    fprintf('%8.2f & %8.2f & %8.2f & %8.2f \\\\ \n', TC(k), TK(k), TF(k), TR(k))
+end
+
+%% OUT deles ind i 1-D matricer for at kunne fylde ind i tabel
+Parametre=OUT(1:3,1)
+Tvalues=OUT(1:3,5)
+%% Denne kører lige tvivlsomt
+for k=1:length(Parametre)
+    fprintf('\begin{tabular}[c]{@{}l@{}} %8.2f \\ ( %8.2f ){tabular} ', Parametre(k), Tvalues(k))
+end

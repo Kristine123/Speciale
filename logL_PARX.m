@@ -1,8 +1,7 @@
 function [logL,lambda] = logL_PARX(theta,Y,X,p,q)
 
 [d,T] = size(X);
-%d er bredden og T er længden på matricen X
-
+%d is the width and T is the lenght on the matrix X
 omega = theta(1)^2;
 alpha = theta(2:p+1).^2;
 beta = theta(p+2:p+q+1).^2;

@@ -46,13 +46,35 @@ X(:,9)=max(0,diff(varbrit));
 X(:,10)=abs(min(0,diff(vardelta)));
 
 X(:,11)=max(0,diff(vardelta));
-X(:,12)=hops;
+X(:,12)=hosp(1:464,1);
 %% Covarians matrix
 C = cov(X)
 
 %% Correlation matrix
 [R,P] = corrcoef(X)
 %xlswrite('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/correlation.xlsx',R)
+%%
+Parametre=OUT(1:3,1)
+Tvalues=OUT(1:3,5)
+%%
+Tempm = R(:,1);
+Tempp = R(:,2);
+Contactm = R(:,3);
+Contactp = R(:,4);
+Testedm = R(:,5);
+Testedp = R(:,6);
+Vacc = R(:,7);
+Varbritm = R(:,8);
+Varbritp = R(:,9);
+Vardeltam = R(:,10);
+Vardeltap = R(:,11);
+Hosp = R(:,12);
+%% Loop til at generere Overleaf tabel
+% Kører pt tingene igennem 12 gange fejl
+for k=1:length(Tempm)
+    fprintf('%8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f \\\\ \\hline  \n', Tempm, Tempp, Contactm, Contactp , Testedm , Testedp , Vacc , Varbritm , Varbritp , Vardeltam , Vardeltap , Hosp)
+end
+
 %% Correlation plot
 figure
 corrplot(X,'testR','on', 'varNames',{'Hospitaslity','Temperature','Contact','Tested','Vaccinated','British','Delta','Restrictions'})
