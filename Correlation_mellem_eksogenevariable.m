@@ -47,6 +47,10 @@ X(:,10)=abs(min(0,diff(vardelta)));
 
 X(:,11)=max(0,diff(vardelta));
 X(:,12)=hosp(1:464,1);
+X(:,13)=diff(strin);
+X(:,14)=max(0,diff(strin));
+X(:,15)=abs(min(0,diff(strin)));
+X(:,16)=diff(hosp);
 %% Covarians matrix
 C = cov(X)
 
@@ -69,6 +73,7 @@ Varbritp = R(:,9);
 Vardeltam = R(:,10);
 Vardeltap = R(:,11);
 Hosp = R(:,12);
+Strin=R(:,13);
 %% Loop til at generere Overleaf tabel
 % Kører pt tingene igennem 12 gange fejl
 for k=1:length(Tempm)

@@ -14,12 +14,11 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 
 %% Select data for model
 Y=hosp'; % Transpose to fit into out
-%X=[]; % Defined as empty matrix to run a PAR frame work
+X=[]; % Defined as empty matrix to run a PAR frame work
+%X(1,:)=max(0,diff(tested)); % Significant covariate to be included in the PARX
 
 T0 = 464;
 Y = Y(:,1:T0); % y is shortend in order to allow us to run the model. 
-
-X(1,:)=max(0,diff(tested));
 
 % To include exogenous variables into model X needs to be changed to
 % X(:,1:t) in loop for estimations
@@ -30,15 +29,15 @@ T = length(Y);
 %% Initial values of theta used in numerical optimization computed
 
 % Set Theta_init
-theta_init = [0.2284;  0.1842; 0.1990; 0.01579];
-%theta_init = [0.2284;  0.1842; 0.1990]; 
+%theta_init = [0.2284;  0.1842; 0.1990; 0.01579];
+theta_init = [0.2284;  0.1842; 0.1990]; 
 % Amount of initial parameters need to be adjusted to amount of parameters included
 
 % Determine size of theta_init
 N_init = length(theta_init);
 
 % Set parameter length omega + alpha + beta + X
-parameters = 4;
+parameters = 3;
 
 % Create matrices to put values into
 theta_est = zeros(parameters,T);
@@ -46,13 +45,13 @@ theta_est = zeros(parameters,T);
 %% Initialization of algorithm - OBS
 %TOLERANCE ER MEGET LAV FOR AT TESTE AT KODEN KØRER. TolFun samt TolX skal
 %sættes op inden koden køres 'rigtigt'. Default værdien er 1e-4. 
-tolerance = 1e-8;
+tolerance = 1e-4;
 options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance); %'Display', 'iter','PlotFcns',@optimplotfval
 T0 = 365; % Set number of days to include
 
 % Search for minimum values of theta 
-[theta_sqr_est, logL_tmp] = fminsearch('logL_PARX', sqrt(theta_init), options, Y(1:T0),X(1:T0),1,1);
-%[theta_sqr_est, logL_tmp] = fminsearch('logL_PARX', sqrt(theta_init), options, Y(1:T0),X,1,1);
+%[theta_sqr_est, logL_tmp] = fminsearch('logL_PARX', sqrt(theta_init), options, Y(1:T0),X(1:T0),1,1);
+[theta_sqr_est, logL_tmp] = fminsearch('logL_PARX', sqrt(theta_init), options, Y(1:T0),X,1,1);
 
 % Imposing numerical restrictions
 theta_est = theta_sqr_est.^2;
@@ -63,8 +62,8 @@ theta_init = theta_est;
 p=1
 
 % Forecast value T+1 using estimated thate values
-lambda_f(T0+1) = PARX_forecast(theta_est,Y(1:T0),X(1:T0),p,1);
-%lambda_f(T0+1) = PARX_forecast(theta_est,Y(1:T0),X,p,1); 
+%lambda_f(T0+1) = PARX_forecast(theta_est,Y(1:T0),X(1:T0),p,1);
+lambda_f(T0+1) = PARX_forecast(theta_est,Y(1:T0),X,p,1); 
  
 %% Iterative estimation and forecasting
 % We re-estimate the model adding one additional observation at a time;
@@ -91,8 +90,8 @@ for t = T0+1:T
 
     % Search for values of theta. Save value for each iteration
     % The index of x X(1:t) is inserted when exogenous variables are considered and removed when only a PAR model is forecasted
-    %[theta_sqr_est_T(:,t-T0),logL_tmp_T(t-T0)] = fminsearch('logL_PARX',sqrt(theta_init),options,Y(1:t),X,p,1);
-    [theta_sqr_est_T(:,t-T0),logL_tmp_T(t-T0)] = fminsearch('logL_PARX',sqrt(theta_init),options,Y(1:t),X(1:t),p,1);
+    [theta_sqr_est_T(:,t-T0),logL_tmp_T(t-T0)] = fminsearch('logL_PARX',sqrt(theta_init),options,Y(1:t),X,p,1);
+    %[theta_sqr_est_T(:,t-T0),logL_tmp_T(t-T0)] = fminsearch('logL_PARX',sqrt(theta_init),options,Y(1:t),X(1:t),p,1);
 
     % Imposing numerical restrictions
     theta_est_T(:,t-T0) = theta_sqr_est_T(:,t-T0).^2;
@@ -100,8 +99,8 @@ for t = T0+1:T
     theta_init = theta_est_T(:,t-T0);
 
     % Forecast lambda value for next day
-    %lambda_f(t+1) = PARX_forecast(theta_est_T(:,t-T0),Y(1:t),X,1,1);
-    lambda_f(t+1) = PARX_forecast(theta_est_T(:,t-T0),Y(1:t),X(1:t),1,1);
+    lambda_f(t+1) = PARX_forecast(theta_est_T(:,t-T0),Y(1:t),X,1,1);
+    %lambda_f(t+1) = PARX_forecast(theta_est_T(:,t-T0),Y(1:t),X(1:t),1,1);
 
 end 
 
@@ -128,8 +127,8 @@ for t = T0+1:T
 end
 
 % Here the specific measure of the model in question is saved to provide data for comparringson plot further down 
-writematrix(MSFE', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PARX/MSFE_PARX2.xlsx')
-writematrix(KLIC', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PARX/KLIC_PARX2.xlsx')
+%writematrix(MSFE', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PARX/MSFE_PARX2.xlsx')
+%writematrix(KLIC', '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PARX/KLIC_PARX2.xlsx')
 %% Plot stability of parameters and forecast error
 close all;
 
@@ -142,21 +141,26 @@ Date = (t1:t2);
 figure;
     yyaxis left
     plot(Date(T0+1:T),MSFE(T0+1:T))
-    ylabel('Parameter value')
+    %ylabel('Parameter value')
 
     yyaxis right
     plot(Date(T0+1:T),KLIC(T0+1:T))
-    ylabel('Parameter value')
+    %ylabel('Parameter value')
     
-    title('Out-of-sample fit: MSE and Score evaluation', 'FontSize', 14)
+    %title('Out-of-sample fit: MSE and Score evaluation', 'FontSize', 14)
     legend('MSFE','KLIC', 'FontSize', 14)
     xlabel('Date', 'FontSize', 14)
     ax = gca;
     ax.FontSize = 14; 
     grid minor
     
- saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/Forecast_errors_PAR.jpg')
-% Plot parameter stability 
+ %saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/Forecast_errors_PAR.jpg')
+
+ %%
+
+%%
+ 
+ % Plot parameter stability 
 figure; 
     plot(Date(T0+1:T),theta_est_T(1,1:T-T0))
     title('Parameter stability')
@@ -222,7 +226,7 @@ T = length(MSFE_PAR);
 
 figure; 
     plot(Date(T0+1:T),MSFE_PAR(T0+1:T),Date(T0+1:T),MSFE_PARX(T0+1:T))
-    ylabel('Parameter value')
+%    ylabel('Parameter value')
 %   title('Comparing MSFE PARX and MSFE PAR', 'FontSize', 14)
     legend('MSFE PAR','MSFE PARX', 'FontSize', 14)
     xlabel('Date', 'FontSize', 14)
@@ -237,7 +241,7 @@ KLIC_PARX = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefere
 
 figure; 
     plot(Date(T0+1:T),KLIC_PAR(T0+1:T),Date(T0+1:T),KLIC_PARX(T0+1:T))
-    ylabel('Parameter value')
+%    ylabel('Parameter value')
     
 %   title('Comparing KLIC PARX and KLIC PAR', 'FontSize', 14)
     legend('KLIC PAR','KLIC PARX', 'FontSize', 14)
@@ -298,3 +302,66 @@ grid minor
 % yticklabels({'y = 0','y = 50','y = 100'})
 %     plot(Date(z),hospp(z),'linestyle','none','marker','*','LineWidth',0.7)
 %     ylim([3,10])
+
+%% Figure to illustrate best model performance
+
+% Checking if exogenous varaible is significant (aplha = 0.5)
+% alpha = 1.64;
+alpha = 0;
+
+% KLIC_PARX = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PARX/MSFE_PARX.xlsx');
+% KLIC_PAR = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/Resultater_PAR/MSFE_PAR.xlsx');
+
+scores = zeros(length(KLIC_PARX),2);
+
+for i =1:length(KLIC_PARX)
+%     if par_est1(i,1) > alpha  % Model 1
+%         par_est1(i,2) = 0;
+%     end
+%         
+%     if par_est2(i,1) > alpha % Model 2
+%         par_est2(i,2) = 0;
+%     end
+    
+% What model is best    
+    if KLIC_PAR(i) < KLIC_PARX(i)
+        scores(i,1) = 1;
+    else
+        scores(i,2) = 2;  
+    end
+end
+
+days = linspace(1,length(KLIC_PAR),length(KLIC_PAR));
+
+figure;
+plot(days,scores(:,1),'linestyle','none','marker','+','color','r','LineWidth',0.7); hold on
+plot(days,scores(:,2),'linestyle','none','marker','+','color','b','LineWidth',0.7); hold off
+ylim([0.5,2.5]);
+xlim([0,days(end)])
+xlabel('Days')
+yticks([1 2])
+yticklabels({'PAR','PARX'})
+ax = gca;
+ax.FontSize = 14; 
+grid minor
+% yticks([0 50 100])
+% yticklabels({'y = 0','y = 50','y = 100'})
+%     plot(Date(z),hospp(z),'linestyle','none','marker','*','LineWidth',0.7)
+%     ylim([3,10])
+
+
+%%
+
+hospi = 0:10;
+k = poisspdf(hospi,2);
+scatter(hospi,k,'Marker',"o")
+grid on
+%%
+%man må kunne lave det omvendt... hvor lambda er en range så du får ex sand for under 10 hospitaliseringer i hele perioden
+lambda = lambda_f;
+k = poisspdf(10,lambda);
+
+%%
+for i=1:length(lambda_f) %her har du tilføjet -1 fordi?
+    c(i)= 1/poisscdf(10,lambda_f(i)); %change for LESS than 10 hospitilazation. For MORE than 1 - xxx
+end

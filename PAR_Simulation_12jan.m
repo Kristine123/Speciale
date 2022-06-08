@@ -49,7 +49,7 @@ lambdas = zeros(200,1);
 % To initialize the simulation, lambda0 and y0 is defined and lambdas is preallocated to 200 observations:
 lambdas(1) = m;
 data_y = data_y(1);
-%%
+%% Simulation
 for i = 1:199
     data   = poissrnd(m,1,1);     % Draw from conditional distribution (m will be updated iteratively)
     data_y = [data_y,data];       % Concatinate data with newly drawn datapoint
@@ -62,8 +62,7 @@ for i = 1:199
     lambdas(i+1) = m;  % Save lambda in array
     
 end 
-%Output_PARX_simu applies the chosen parameters to data and so does not
-%conduct maximum likelihood.
+%Output_PARX_simu applies the chosen parameters to data and so does not conduct maximum likelihood.
 writematrix(lambdas, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/lambdas_simulation.xlsx')
 
 %% Plot predicted values vs. actual observations

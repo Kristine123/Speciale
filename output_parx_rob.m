@@ -6,7 +6,7 @@ function[OUT,pearson_residuals,pred,probability,meany,rpit,confidence_interval,t
  theta_sqr0 = sqrt(theta0);
  %theta_sqr0 = theta0;   %to remove none negative restriction activate this line
 
-options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun', 1e-8, 'TolX', 1e-8,'Display', 'iter','PlotFcns',@optimplotfval)
+options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun', 1e-8, 'TolX', 1e-8)
 [theta_sqr,logLmin] = fminsearch('logL_PARX',theta_sqr0,options,y,X,p,q);
 theta = theta_sqr.^2;
 %theta = theta_sqr; %to remove none negative restriction activate this line

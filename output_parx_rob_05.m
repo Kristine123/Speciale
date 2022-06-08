@@ -15,7 +15,7 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 
 %% Select data to use
 
- X=[]; %to run a PAR model activate this line
+% X=[]; %to run a PAR model activate this line
 
 % Transformed variables for PARX model
 
@@ -26,7 +26,7 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 % X(4,:)=max(0,diff(contact));
 % 
 % X(5,:)=abs(min(0,diff(tested))); 
-% X(1,:)=max(0,diff(tested));%Only significant variable in empirical analysis
+ X(1,:)=max(0,diff(tested));%Only significant variable in empirical analysis
 % 
 % X(7,:)=abs(diff(vacc)); 
 % 
@@ -40,15 +40,16 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
  
  %% Length of time series
  
-T0 = 464;
+% T0 = 464;
+ T0 = 55; % observations on 55, 197, 326, 464
 % T0 is set to lenght of time series -1 when including the exogenes variables. This is necessary as taking first difference of exogenes variables results
 % in a shorter time series
 
 y = hosp';
 y = y(:,1:T0); 
 
- % y = y(:,62:T0); %To shorten time series further use this format 
- % X = X(:,62:T0); 
+   y = y(:,1:T0); %To shorten time series further use this format 
+   X = X(:,1:T0);
  
 %% Dummy
 % Creates dummy for robustness analysis
@@ -79,13 +80,13 @@ filename = 'Outputs/PARX_22/0112_rerun_the_results.xlsx';
 
 % Use parx_rob function to get outputs
 
-[OUT, pearson_residuals, pred, probability, meany, rpit,confidence_interval] = output_parx_rob(y(:,1:T0),X,theta0,p,q,s,filename); 
+[OUT, pearson_residuals, pred, probability, meany, rpit,confidence_interval] = output_parx_rob(y(:,1:end),X(:,1:end),theta0,p,q,s,filename); 
 
 % If a PAR is estimated: output_parx_rob(y(:,1:T0),X,theta0,p,q,s,filename);
 % If a PARX is estimated: output_parx_rob(y(:,1:T0),X(:,1:T0),theta0,p,q,s,filename);
 
 %%
-writematrix(pred, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/pred.xlsx')
+% writematrix(pred, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/pred.xlsx')
 % writematrix(, '/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Outputs/PARX/lambda_f_2para.xlsx')
 %% Settings dates for misspecification tests
 
@@ -113,7 +114,7 @@ xlim(datetime([2020 2021],[03 08],1));
 %title('PAR(1,1) Estimates  vs Actual Observations','FontSize', 14);
 legend('Estimated Hospitalizations','Actual Hospitalizations', 'FontSize', 14);
 ax.FontSize = 14;
-saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Figurer/TestedP/predictions.jpg')
+%saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Figurer/TestedP/predictions.jpg')
 
 %% Pearson Residuals
 

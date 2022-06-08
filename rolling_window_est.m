@@ -138,12 +138,12 @@ Date = (t1:t2);
 figure;
     yyaxis left
     plot(Date(1:t),MSFE)
-    ylabel('Parameter value')
+    %ylabel('Parameter value')
     %plot(Date(1:t+1),MSFE)
 
     yyaxis right
     plot(Date(1:t),KLIC)
-    ylabel('Parameter value')
+    %ylabel('Parameter value')
     %plot(Date(1:t+1),KLIC)
     
     %title('Out-of-sample fit: MSE and Score evaluation', 'FontSize', 14)
@@ -289,12 +289,12 @@ figure;
     yyaxis left
     %plot(Date(1:t+1),MSFE); hold on
     plot(Date(1:t),MSFE_PARX); hold off
-    ylabel('Parameter value')
+    %ylabel('Parameter value')
 
     yyaxis right
     %plot(Date(1:t+1),KLIC); hold on
     plot(Date(1:t),KLIC_PARX); hold off
-    ylabel('Parameter value')
+    %ylabel('Parameter value')
     
     %title('Out-of-sample fit: MSE and Score evaluation', 'FontSize', 14)
     legend('MSFE PARX','KLIC PARX', 'FontSize', 14)
@@ -332,7 +332,7 @@ figure;
  % KLIC
 KLIC_PAR = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/KLIC_PAR.xlsx'); 
 KLIC_PARX = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/KLIC_PARX.xlsx');
-
+%%
 figure; 
     plot(Date(T0:T),KLIC_PAR(1:end-1),Date(T0:T),KLIC_PARX(1:end))
     ylabel('Parameter value')
