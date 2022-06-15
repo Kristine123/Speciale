@@ -73,7 +73,7 @@ end
 
 X(1,:)=dummy; % To include dummy activate this line
 
-%% Length of timeseries continued
+%% belongs to length of timeseries
 y = hosp';
 y = y(:,1:endDate); 
 
