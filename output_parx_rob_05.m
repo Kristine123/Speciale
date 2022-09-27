@@ -2,7 +2,7 @@
 clc 
 clear all
 close all
-
+ 
 %% Import data
 hosp=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/hosp_16.txt');     
 temp = importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/temp_18.txt'); % Ikke transformerede. Trans er i temp_16
@@ -34,7 +34,7 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
 % X(2,:)=max(0,diff(contact));
 % 
 % X(a5,:)=abs(min(0,diff(tested))); 
-% X(a6,:)=max(0,diff(tested));%Only significant variable in empirical analysis
+ X(1,:)=max(0,diff(tested));%Only significant variable in empirical analysis
 % 
 % X(a7,:)=abs(diff(vacc)); 
 % 
@@ -46,32 +46,32 @@ vardelta=importdata('/Users/krmmm/Documents/Dokumenter_Mac/Speciale/Model_data/D
  %% Length of time series
  
  startDate = 1;
- endDate = 326;
-% T0 = 55; % observations on 55, (9/10-20)197, (15/02-21)326, (02/07-21)464
-% T0 is set to lenght of time series -1 when including the exogenes variables. This is necessary as taking first difference of exogenes variables results
+ endDate = 464;
+% endDate observations % observations on 55, (9/10-20)197, (15/02-21)326, (02/07-21)464
+% endDate is set to lenght of time series -1 when including the exogenes variables. This is necessary as taking first difference of exogenes variables results
 % in a shorter time series
  %% Dummy
 % Creates dummy for robustness analysis
-dummy = zeros(endDate,1);
-
-if (endDate == 464)
-    for i = 1:endDate
-        if(i >= 197)
-        dummy(i) = 1;
-        end
-    end
-else
-    for i = 1:endDate
-        if(i >= 197)
-        dummy(i) = 1;
-        end
-    end
-    for i = endDate:464
-        dummy(i) = 0;
-    end
-end
-
-X(1,:)=dummy; % To include dummy activate this line
+% dummy = zeros(endDate,1);
+% 
+% if (endDate == 464)
+%     for i = 1:endDate
+%         if(i >= 197)
+%         dummy(i) = 1;
+%         end
+%     end
+% else
+%     for i = 1:endDate
+%         if(i >= 197)
+%         dummy(i) = 1;
+%         end
+%     end
+%     for i = endDate:464
+%         dummy(i) = 0;
+%     end
+% end
+% 
+% X(1,:)=dummy; % To include dummy activate this line
 
 %% Length of timeseries continued
 y = hosp';
@@ -152,14 +152,53 @@ figure;
     grid minor
     
     saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Figurer/Midlertidige_Figurer/predictions.jpg')
+
+%% INDSAT 02-09-2022 - confidence interval
+
+%% Calculating upper confindence interval
+%start at 2 because need at least 1 degree of freedom to calculate
+%confidence level:
+p = .95;
+%pre-allocate ? two observations = one degree of freedom needed to
+%calculate confidence interval
+%confidence_interval_upper = zeros((size(pred)-5));
+
+for i = 2:size(pred)
+%at leat one degree of fredoom needed to calculate thats why we start on 2
+nu = i-1 ; 
+t = tinv(p,nu);
+%Her har du antaget lambda = mean = var
+upper = pred(i) + t * (std(pred(1:i))/sqrt(i));  
+%To adjust 
+confidence_interval_upper(i-1) = upper;
+end
+
+% The result is a way to narrow interval
+
+%% Attempt with chi^2 
+
+for i = 2:size(pred)
+%at leat one degree of fredoom needed to calculate thats why we start on 2
+nu = i-1 ; 
+t = chi2inv(p,nu)
+upper = pred(i) + t * (pred(i)/sqrt(i));  
+%To adjust 
+confidence_interval_upper(i-1) = upper;
+end
+
+
+
 %% Predicted defaults per month
 t1 = datetime(2020,03,26,8,0,0);
 t2 = datetime(2021,07,3,8,0,0);
-Date = (t1:t2-2);
+Date = (t1:t2-3);
+%Date = (t1:t2-2);
 
 figure; 
-u = y(p+1:end)
-plot(Date,u,Date,pred,Date, confidence_interval, 'LineWidth',1.5)
+u = y(p+1:end-1)
+%u = y(p+1:end)
+%plot(Date,u,Date,pred,Date, confidence_interval, 'LineWidth',1.5)
+plot(Date,u,Date,pred(1:end-1),Date, confidence_interval_upper, 'LineWidth',1.5)
 %plot(Date,g,'LineWidth',0.7)
 ylabel('Daily Hospitalizations','FontSize',  14)
 xlabel('Date','FontSize',  14)
@@ -286,4 +325,72 @@ figure;
 [h,p] = kstest(norminv(hosp))
 
 saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Figurer_2408/2508_endelige_misspecifikation/screwnessHistogram.jpg')
+%%
+x = 0:15;
+y = poisscdf(x, 4.946845228258169);
+
+figure
+stairs(x,y)
+xlabel('Observation')
+ylabel('Cumulative Probability')
+
+%% Attempt to calculate confidence intervals useing t-distribution : should maybe be Z?
+clear;
+clc;
+pred = [1:100];
+%goal is to do a loop through i and calculate upper an lower bound in each
+%step
+
+%zeros(size(pred)-1);
+
+%% Calculating upper confindence interval - t test where lambda = var
+%start at 2 because need at least 1 degree of freedom to calculate
+%confidence level:
+p = .95;
+%pre-allocate ? two observations = one degree of freedom needed to
+%calculate confidence interval
+%confidence_interval_upper = zeros((size(pred)-1));
+
+for i = 2:size(pred)
+nu = i-1 ; 
+t = tinv(p,nu);
+upper = pred(i) + t * (sqrt(pred(i))/sqrt(i));  
+confidence_interval_upper1(i) = upper;
+end
+
+%% Calculating upper confindence interval - t test where lambda is not equal to var
+%start at 2 because need at least 1 degree of freedom to calculate
+%confidence level:
+p = .95;
+%pre-allocate ? two observations = one degree of freedom needed to
+%calculate confidence interval
+%confidence_interval_upper = zeros((size(pred)-1));
+
+for i = 2:size(pred)
+nu = i-1 ; 
+t = tinv(p,nu);
+upper = pred(i) + t * (std(pred(1:i))/sqrt(i));  
+confidence_interval_upper2(i) = upper;
+end
+
+
+%%
+%% Calculating upper confindence interval - CHI^2
+%start at 2 because need at least 1 degree of freedom to calculate
+%confidence level:
+p = .95;
+%pre-allocate ? two observations = one degree of freedom needed to
+%calculate confidence interval
+%confidence_interval_upper = zeros((size(pred)-1));
+
+for i = 2:size(pred)
+nu = i-1 ; 
+t = tinv(p,nu);
+upper = pred(i) + t * (pred(i)/sqrt(i));  
+confidence_interval_upper(i) = upper;
+end
+
+
+
+   
 

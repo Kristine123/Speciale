@@ -54,7 +54,7 @@ theta_est = zeros(parameters,T);
 
 % Get rolling time window of 100 days
 x  = 1:T; % Length of dataset (464 data points)
-w  = 100; % rolling window size of 30 days (month)
+w  = 120; % rolling window size of 30 days (month)
 T0 = 0; % days prior to evaluation of first estimation (e.g. start model at day 101)
 
 series = zeros(floor(((length(x)-w)/w)*w),w); % Preallocation of series (100 days wide and rows that are multiple of 30 days window => length of 420)
@@ -71,7 +71,7 @@ end
 
 % Set options for the fminsearch function
 tolerance = 1e-8;
-options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance, 'Display', 'iter'); %,'PlotFcns',@optimplotfval
+options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance); %,'PlotFcns',@optimplotfval
 
 % Create empty matrices to fill data into
 logL_tmp_T  = zeros(1, length(x)-w -T0);
@@ -104,14 +104,12 @@ end
 %% Determine forecast error KLIC and MSFE
 ForecastError = Y(w+1:end)-lambda_f(1:end-1);  % starts compairing at day windowlength +1 in data Y with first lambda forecast. Ends at second to last lambda forecast as this is where data Y ends.
 
-%%
 logf = Y(w+1:end).*log(lambda_f(1:end-1)) - lambda_f(1:end-1);
 %logf = Y(1:t+1).*log(lambda_f(1:t+1)) - lambda_f(1:t+1); , den gamle 
-%% 
+
 KLIC = zeros(1,t);
 %før t+1
 MSFE = zeros(1,t);
-%%
 
 % This loop computes the accumulated MSFE + KLIC for each rolling window 
 for i = 1:t
@@ -203,7 +201,7 @@ theta_est = zeros(parameters,T);
 
 % Get rolling time window of 100 days
 x  = 1:T; % Length of dataset (464 data points)
-w  = 100; % rolling window size of 30 days (month)
+w  = 30; % rolling window size of 30 days (month)
 T0 = 0; % days prior to evaluation of first estimation (e.g. start model at day 101)
 
 series = zeros(floor(((length(x)-w)/w)*w),w); % Preallocation of series (100 days wide and rows that are multiple of 30 days window => length of 420)
@@ -221,7 +219,7 @@ end
 
 % Set options for the fminsearch function
 tolerance = 1e-8;
-options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance, 'Display', 'iter'); %,'PlotFcns',@optimplotfval
+options = optimset('Algorithm','interior-point','MaxIter',10000, 'MaxFunEvals',10000,'TolFun',tolerance,'TolX', tolerance); %,'PlotFcns',@optimplotfval
 
 % Create empty matrices to fill data into
 logL_tmp_T  = zeros(1, length(x)-w -T0);
@@ -319,7 +317,7 @@ Date = (t1:t2);
 
 figure; 
     plot(Date(T0:T),MSFE_PAR(1:end-1),Date(T0:T),MSFE_PARX(1:end))
-    ylabel('Parameter value')
+%    ylabel('Parameter value')
 %   title('Comparing MSFE PARX and MSFE PAR', 'FontSize', 14)
     legend('MSFE PAR','MSFE PARX', 'FontSize', 14)
     xlabel('Date', 'FontSize', 14)
@@ -335,7 +333,7 @@ KLIC_PARX = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefere
 %%
 figure; 
     plot(Date(T0:T),KLIC_PAR(1:end-1),Date(T0:T),KLIC_PARX(1:end))
-    ylabel('Parameter value')
+%    ylabel('Parameter value')
     
 %   title('Comparing KLIC PARX and KLIC PAR', 'FontSize', 14)
     legend('KLIC PAR','KLIC PARX', 'FontSize', 14)
@@ -403,3 +401,193 @@ grid minor
 %     plot(Date(z),hospp(z),'linestyle','none','marker','*','LineWidth',0.7)
 %     ylim([3,10])
 
+
+%%
+ 
+ % Plot parameter stability 
+figure; 
+    plot(Date(T0+1:T),theta_est_T(1,1:T-T0))
+    %title('Parameter stability')
+    legend('\omega', 'FontSize', 14)
+    xlabel('Date', 'FontSize', 14)
+    ylabel('Parameter value', 'FontSize', 14)
+    ax = gca;
+    ax.FontSize = 14; 
+    grid minor
+
+ saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/Parmeters_stability_omega_PARX_Rolling.jpg')
+figure; 
+    plot(Date(T0+1:T),theta_est_T(2,1:T-T0))
+    %title('Parameter stability')
+    legend('\alpha_1', 'FontSize', 14)
+    xlabel('Date', 'FontSize', 14)
+    ylabel('Parameter value', 'FontSize', 14)
+    ax = gca;
+    ax.FontSize = 14; 
+    grid minor
+    
+ saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/Parmeters_stability_alpha_PARX_Rolling.jpg')
+figure; 
+    plot(Date(T0+1:T),theta_est_T(3,1:T-T0))
+    %title('Parameter stability')
+    legend('\beta', 'FontSize', 14)
+    xlabel('Date', 'FontSize', 14)
+    ylabel('Parameter value', 'FontSize', 14)
+    ax = gca;
+    ax.FontSize = 14; 
+    grid minor
+
+     saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/Parmeters_stability_beta_PARX_Rolling.jpg')
+
+figure; 
+    plot(Date(T0+1:T),theta_est_T(4,1:T-T0))
+    %title('Parameter stability')
+    legend('Tested(+)', 'FontSize', 14)
+    xlabel('Date', 'FontSize', 14)
+    ylabel('Parameter value', 'FontSize', 14)
+    ax = gca;
+    ax.FontSize = 14; 
+    grid minor
+
+     saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/Parmeters_stability_Tested+_PARX_Rolling.jpg')
+     
+%%
+
+figure; 
+     [AX,H1,H2] = plotyy(Date(T0:T),theta_est_T(4,1:end),Date(T0:T),MSFE_PARX(1:end))
+     %title('Parameter stability')
+     legend('Tested(+)','MSFE PARX')
+     xlabel('Date', 'FontSize', 14)
+     ylabel(AX(1),'Parameter value','FontSize', 14)
+     ylabel(AX(2),'MSFE','Fontsize',14)
+     set(AX,'Fontsize',14)
+     %ax = gca;
+     %ax.FontSize = 14;
+     grid minor
+     saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/Parmeters_stability_Tested+MSFE_PARX_Rolling.jpg')
+
+     
+%% Figure to illustrate best model performance MSFE
+
+%Creating Date for our observation period. 
+t1 = datetime(2020,03,26,8,0,0);
+t2 = datetime(2021,07,3,8,0,0);
+Date = (t1:t2);
+
+% Checking if exogenous varaible is significant (aplha = 0.5)
+% alpha = 1.64;
+alpha = 0;
+
+MSFE_PAR = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/MSFE_PAR.xlsx'); 
+MSFE_PARX = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/MSFE_PARX.xlsx');
+
+%Cutting the last observation from our PAR Model due to reasons. 
+MSFE_PAR = MSFE_PAR(1:end-1,:)
+T0 = 100
+T = 464
+
+scores = zeros(length(MSFE_PARX),3);
+%scores = zeros(length(MSFE_PARX),2);
+
+for i =1:length(MSFE_PARX)
+%     if par_est1(i,1) > alpha  % Model 1
+%         par_est1(i,2) = 0;
+%     end
+%         
+%     if par_est2(i,1) > alpha % Model 2
+%         par_est2(i,2) = 0;
+%     end
+    
+% What model is best    
+    if MSFE_PAR(i) < MSFE_PARX(i)
+        scores(i,1) = 1;
+    elseif MSFE_PAR(i) == MSFE_PARX(i)
+        scores(i,3) = 3;
+    else
+        scores(i,2) = 2;  
+    end
+end
+
+figure;
+plot(Date(T0+1:T),scores(:,1),'linestyle','none','marker','+','color','#4DBEEE','LineWidth',0.7); hold on
+plot(Date(T0+1:T),scores(:,2),'linestyle','none','marker','+','color','#EDB120','LineWidth',0.7); hold on
+plot(Date(T0+1:T),scores(:,3),'linestyle','none','marker','+','color','#77AC30','LineWidth',0.7); hold off
+
+
+ylim([0.5,3.5]);
+%xlim([0,days(end)])
+xlabel('Date')
+yticks([1 2 3])
+yticklabels({'PAR','PARX','PAR=PARX'})
+ax = gca;
+ax.FontSize = 14; 
+grid off
+% yticks([0 50 100])
+% yticklabels({'y = 0','y = 50','y = 100'})
+%     plot(Date(z),hospp(z),'linestyle','none','marker','*','LineWidth',0.7)
+%     ylim([3,10])
+
+%
+saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/MSFE_Comparison.png')
+%% Figure to illustrate best model performance KLIC!!!
+
+%Creating Date for our observation period. 
+t1 = datetime(2020,03,26,8,0,0);
+t2 = datetime(2021,07,3,8,0,0);
+Date = (t1:t2);
+
+% Checking if exogenous varaible is significant (aplha = 0.5)
+% alpha = 1.64;
+alpha = 0;
+
+KLIC_PAR = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/KLIC_PAR.xlsx'); 
+KLIC_PARX = xlsread('/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/KLIC_PARX.xlsx');
+
+%Cutting the last observation from our PAR Model due to reasons. 
+KLIC_PAR = KLIC_PAR(1:end-1,:)
+T0 = 100
+T = 464
+
+scores = zeros(length(KLIC_PARX),3);
+%scores = zeros(length(MSFE_PARX),2);
+
+for i =1:length(KLIC_PARX)
+%     if par_est1(i,1) > alpha  % Model 1
+%         par_est1(i,2) = 0;
+%     end
+%         
+%     if par_est2(i,1) > alpha % Model 2
+%         par_est2(i,2) = 0;
+%     end
+    
+% What model is best    
+    if KLIC_PAR(i) > KLIC_PARX(i)
+        scores(i,1) = 1;
+    elseif KLIC_PAR(i) == KLIC_PARX(i)
+        scores(i,3) = 3;
+    else
+        scores(i,2) = 2;  
+    end
+end
+
+days = linspace(1,length(KLIC_PAR),length(KLIC_PAR));
+
+figure;
+plot(Date(T0+1:T),scores(:,1),'linestyle','none','marker','+','color','#4DBEEE','LineWidth',0.7); hold on
+plot(Date(T0+1:T),scores(:,2),'linestyle','none','marker','+','color','#EDB120','LineWidth',0.7); hold on
+plot(Date(T0+1:T),scores(:,3),'linestyle','none','marker','+','color','#77AC30','LineWidth',0.7); hold off
+
+
+ylim([0.5,3.5]);
+%xlim([0,days(end)])
+xlabel('Date')
+yticks([1 2 3])
+yticklabels({'PAR','PARX','PAR=PARX'})
+ax = gca;
+ax.FontSize = 14; 
+grid off
+% yticks([0 50 100])
+% yticklabels({'y = 0','y = 50','y = 100'})
+%     plot(Date(z),hospp(z),'linestyle','none','marker','*','LineWidth',0.7)
+%     ylim([3,10])
+saveas(gcf,'/Users/krmmm/Documents/Dokumenter_Mac/MATLAB/PARX_1/Prefered_PARX_model_forecast/RollingWindow/KLIC_Comparison.png')

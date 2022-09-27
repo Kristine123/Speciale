@@ -1,4 +1,4 @@
-% PAR model estimation
+% PAR model estimation6
 %Version tilpasset efter Anders mail den 12/1.  
 clc 
 clear all 

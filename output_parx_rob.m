@@ -163,8 +163,9 @@ for i=1:size(pred)
     
     %Formular from
     %https://stats.stackexchange.com/questions/15371/how-to-calculate-a-confidence-level-for-a-poisson-distribution 
-    confidence_interval(i) = pred(i) - 1.64 * sqrt((pred(i)/i));
-    
+    confidence_interval(i) = pred(i) - 1.64 * (pred(i)/sqrt(i));
+    %Ændret 01-09-2022 fra:
+    %confidence_interval(i) = pred(i) - 1.64 * sqrt((pred(i)/i));
 end
 
 % %loops the specific time series

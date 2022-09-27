@@ -118,8 +118,8 @@ MSFE = zeros(1,T);
  
 for t = T0+1:T
     MSFE(t) = sum(ForecastError(T0+1:t).^2)/(t-T0); % "2" added as 401 is 0 whereby the observation is invalid. 
-    KLIC(t) = sum(logf(T0+2:t))/(t-T0); % "2" added instead of 1, as the first two observations of lambda_f return inf, whereby it ruins the observations
-%   KLIC(t) = -sum(logf(T0+1:t))/(t-T0); %Furthermore - is removed because
+%    KLIC(t) = sum(logf(T0+2:t))/(t-T0); % "2" added instead of 1, as the first two observations of lambda_f return inf, whereby it ruins the observations
+    KLIC(t) = -sum(logf(T0+2:t))/(t-T0); %Furthermore - is removed because
 %   it is not in the original equation
 end
 
